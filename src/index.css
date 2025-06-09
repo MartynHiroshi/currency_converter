@@ -75,6 +75,17 @@ h1 {
 .convert-button:hover {
   background: #1565c0;
 }
+/*состояние задезебленной кнопки*/
+.convert-button:disabled {
+  background: #b0b0b0;
+  color: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.convert-button:disabled:hover {
+  background: #b0b0b0; /* чтобы при наведении цвет не менялся */
+}
 
 .loading {
   font-size: 14px;

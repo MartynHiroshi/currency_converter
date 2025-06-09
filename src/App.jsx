@@ -1,15 +1,23 @@
-import { useState } from "react";
 import "./index.css";
+import { useEffect, useState } from "react";
+import { calculateResult } from "./api/controllers/calculateResult";
+import { getCurrencies } from "./api/controllers/getCurrencyList";
 import CurrencySelect from "./components/CurrencySelect";
 
-const USER_API = "https://api.frankfurter.app/";
-
 export default function App() {
+  const [currencyList, setCurrencyList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currencyFrom, setCurrencyFrom] = useState("USD");
   const [currencyTo, setCurrencyTo] = useState("EUR");
   const [input, setInput] = useState(null);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    getCurrencies()
+      .then(setCurrencyList)
+      .catch(() => alert("Ошибка получения валют"))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <div className="app">
@@ -21,35 +29,23 @@ export default function App() {
             placeholder="Кол-во"
             className="input-field"
             onChange={(event) => setInput(event.target.value)}
-            onKeyDown={(event) => event.key === "Enter" && calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading)}
+            onKeyDown={(event) =>
+              event.key === "Enter" && calculateResult({ input, currencyFrom, currencyTo, setResult, setIsLoading })
+            }
           />
-          <CurrencySelect value={currencyFrom} setFunction={setCurrencyFrom} setIsLoading={setIsLoading} />
+          <CurrencySelect value={currencyFrom} setFunction={setCurrencyFrom} currencyList={currencyList} />
           <span className="arrow">→</span>
-          <CurrencySelect value={currencyTo} setFunction={setCurrencyTo} setIsLoading={setIsLoading} />
+          <CurrencySelect value={currencyTo} setFunction={setCurrencyTo} currencyList={currencyList} />
         </div>
-        <button className="convert-button" onClick={() => calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading)}>
+        <button
+          className="convert-button"
+          onClick={() => calculateResult({ input, currencyFrom, currencyTo, setResult, setIsLoading })}
+          // что бы не валидировать инпут, когда он пуст
+          disabled={!input || isLoading}>
           Сконвертировать
         </button>
         {isLoading ? <p className="loading">Обработка...</p> : result == 0 || <p className="result">{result}</p>}
       </div>
     </div>
   );
-}
-
-async function calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading) {
-  setIsLoading(true);
-  try {
-    if (!input || input <= 0) {
-      setResult(null);
-      alert("Введеное значение не может быть равно 0 или меньше");
-    } else {
-      const response = await fetch(`${USER_API}latest?amount=${input}&from=${currencyFrom}&to=${currencyTo}`);
-      const data = await response.json();
-      setResult(data?.rates[currencyTo]);
-    }
-  } catch {
-    alert("Не получилось обработать конвертацию");
-  } finally {
-    setIsLoading(false);
-  }
 }

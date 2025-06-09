@@ -1,28 +1,13 @@
-import { useState, useEffect } from "react";
 
-const DEV_API = "https://api.frankfurter.dev/v1/";
-
-export default function CurrencySelect({ value, setFunction, setIsLoading }) {
-  const [currencyList, setCurrencyList] = useState([]);
-
-  useEffect(() => {
-    getCurrencies()
-      .then(setCurrencyList)
-      .catch(() => alert("Ошибка получения валют"))
-      .finally(() => setIsLoading(false));
-  }, []);
-
+// убрал из компонента запрос на получение списка валют 
+// во первых ты его использовал 2 раза а следовательно и запрос бесмысленно дублировался.
+// во вторых ui компонент должен быть тупым и делать только какую то минимальную работу что будет повышать его переиспользуемость.
+export default function CurrencySelect({ value, setFunction, currencyList }) {
   return (
     <select value={value} className="dropdown" onChange={(event) => setFunction(event.target.value)}>
       {renderCurrencyOptions(currencyList)}
     </select>
   );
-}
-
-async function getCurrencies() {
-  const response = await fetch(`${DEV_API}currencies`);
-  const data = await response.json();
-  return Object.entries(data).map(([code, name]) => ({ code, name }));
 }
 
 function renderCurrencyOptions(currencyList) {
