@@ -29,9 +29,10 @@ export default function App() {
             placeholder="Кол-во"
             className="input-field"
             onChange={(event) => setInput(event.target.value)}
-            onKeyDown={(event) =>
-              event.key === "Enter" && calculateResult({ input, currencyFrom, currencyTo, setResult, setIsLoading })
-            }
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !isInvalidInput(input, isLoading))
+                calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading);
+            }}
           />
           <CurrencySelect value={currencyFrom} setFunction={setCurrencyFrom} currencyList={currencyList} />
           <span className="arrow">→</span>
@@ -39,13 +40,18 @@ export default function App() {
         </div>
         <button
           className="convert-button"
-          onClick={() => calculateResult({ input, currencyFrom, currencyTo, setResult, setIsLoading })}
+          onClick={() => calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading)}
           // что бы не валидировать инпут, когда он пуст
-          disabled={!input || isLoading}>
+          disabled={isInvalidInput(input, isLoading)}
+        >
           Сконвертировать
         </button>
         {isLoading ? <p className="loading">Обработка...</p> : result == 0 || <p className="result">{result}</p>}
       </div>
     </div>
   );
+}
+
+function isInvalidInput(input, isLoading) {
+  return input == 0 || !input || isLoading;
 }
