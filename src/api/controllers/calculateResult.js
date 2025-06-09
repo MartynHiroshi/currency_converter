@@ -1,9 +1,8 @@
 import { currencyApi } from "../currencies";
-// если аргументов у функции больше 3 то делаем объект
-export async function calculateResult({ input, currencyFrom, currencyTo, setResult, setIsLoading }) {
+
+export async function calculateResult(input, currencyFrom, currencyTo, setResult, setIsLoading) {
   setIsLoading(true);
   try {
-    // убрал валидацию на пустой инпут потому что теперь это делает кнопка
     const query = { amount: input, from: currencyFrom, to: currencyTo };
     // используем query параметры а не форматированую строку
     const queryString = new URLSearchParams(query).toString();
